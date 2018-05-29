@@ -1,0 +1,15 @@
+<?php
+
+if (!module_load_include('php', 'consolidator_workplace', 'autoload')) {
+  throw new \Exception('Could not find autoloader.');
+}
+
+use consolidator_workplace\ReportType\WorkplaceUsersAndDrupalUsers;
+
+function consolidator_workplace_consolidator_reports() {
+
+  return [
+    new WorkplaceUsersAndDrupalUsers(),
+  ];
+
+}

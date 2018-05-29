@@ -1,0 +1,5 @@
+name = Consolidator Workplace
+description = Provides an report on workplace and local users.
+core = 7.x
+dependencies[] = consolidator
+php = 7

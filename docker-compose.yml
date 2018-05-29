@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  # Drupal server
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DRUPAL_PROFILE: standard
+      DRUPAL_SITE_NAME: Drupal
+      DRUPAL_USER: admin
+      DRUPAL_PASS: admin
+      DRUPAL_DBURL: mysql://drupal:drupal@database:3306/drupal
+    ports:
+      - "80"
+    volumes:
+      - .:/var/www/html/sites/all/modules/contrib/consolidator_workplace
+      - settings:/var/www/html/sites/default
+    links:
+      - database:database
+    working_dir: /var/www/html/sites/all/modules/contrib/consolidator_workplace
+
+  # Database Server
+  database:
+    image: mysql:5
+    volumes:
+      - "mysql:/var/lib/mysql"
+    environment:
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+      MYSQL_DATABASE: drupal
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - "3306"
+
+volumes:
+  mysql:
+  settings:
