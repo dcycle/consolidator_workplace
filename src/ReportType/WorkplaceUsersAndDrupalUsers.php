@@ -78,6 +78,40 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
   public function getWorkplaceUsers() {
     $existing_results = $this->fromLastCall('existing', []);
     $total_calls = $this->fromLastCall('total_calls', 1);
+    $startIndex = $this->fromLastCall('startIndex', 1);
+
+    $path = '/scim/v1/Users?startIndex=' . $startIndex;
+    $call = 'https://www.facebook.com' . $path;
+    $data = $this->getJson(
+      $call,
+      array(
+        'headers' => array(
+          'Authorization' => 'Bearer ' . $this->setting('api_key'),
+        ),
+        'method' => 'GET',
+        'data' => json_encode(NULL),
+      )
+    );
+    if (count($data['itemsPerPage']) && !empty($data['Resources']) && count($data['Resources'])) {
+      $all_results = array_merge($existing_results, $data['Resources']);
+      $this->rememberForNext('startIndex', $data['startIndex'] + $data['itemsPerPage']);
+      $this->rememberForNext('existing', $all_results);
+      $this->rememberForNext('total_calls', ++$total_calls);
+    }
+    else {
+      return [
+        'result' => $existing_results,
+        'total-calls' => $total_calls,
+      ];
+    }
+  }
+
+  /**
+   * Do not do this, get Workplace users.
+   */
+  public function getWorkplaceUsersForGroups() {
+    $existing_results = $this->fromLastCall('existing', []);
+    $total_calls = $this->fromLastCall('total_calls', 1);
 
     // Remaining groups which have not even been started yet.
     $current_group = $this->fromLastCall('current-group', '');
