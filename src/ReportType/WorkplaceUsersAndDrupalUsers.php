@@ -93,6 +93,10 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
       )
     );
     if (count($data['itemsPerPage']) && !empty($data['Resources']) && count($data['Resources'])) {
+      $resources = [];
+      foreach ($data['Resources'] as $resource) {
+        $resources[$resource->userName] = $resource->userName;
+      }
       $all_results = array_merge($existing_results, $data['Resources']);
       $this->rememberForNext('startIndex', $data['startIndex'] + $data['itemsPerPage']);
       $this->rememberForNext('existing', $all_results);
