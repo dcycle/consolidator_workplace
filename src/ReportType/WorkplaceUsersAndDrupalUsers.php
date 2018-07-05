@@ -46,6 +46,8 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
     $total_calls = $this->fromLastCall('total_calls', 1);
     $next_page = $this->fromLastCall('next-page', '');
 
+    $this->progressMessage = 'Getting workplace groups (page ' . $total_calls . ').';
+
     $path = 'community/groups';
     $call = $next_page ? $next_page : ($this->setting('graph_url') . '/' . $path);
     $data = $this->getJson(
@@ -79,6 +81,8 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
     $existing_results = $this->fromLastCall('existing', []);
     $total_calls = $this->fromLastCall('total_calls', 1);
     $startIndex = $this->fromLastCall('startIndex', 1);
+
+    $this->progressMessage = 'Getting workplace users (page ' . $total_calls . ').';
 
     $path = '/scim/v1/Users?startIndex=' . $startIndex;
     $call = 'https://www.facebook.com' . $path;
@@ -171,6 +175,9 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
    */
   public function getDrupalUsers() {
     $users = entity_load('user');
+
+    $this->progressMessage = 'Getting local Drupal users.';
+
     unset($users[0]);
     unset($users[1]);
     return [
