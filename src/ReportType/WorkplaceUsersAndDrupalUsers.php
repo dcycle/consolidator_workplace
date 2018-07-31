@@ -97,10 +97,6 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
       )
     );
     if (count($data['itemsPerPage']) && !empty($data['Resources']) && count($data['Resources'])) {
-      $resources = [];
-      foreach ($data['Resources'] as $resource) {
-        $resources[$resource->userName] = $resource->userName;
-      }
       $all_results = array_merge($existing_results, $data['Resources']);
       $this->rememberForNext('startIndex', $data['startIndex'] + $data['itemsPerPage']);
       $this->rememberForNext('existing', $all_results);
@@ -221,6 +217,17 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
     ];
   }
 
+  /**
+   * Get a required setting as a variable. Throw exception if it is not set.
+   *
+   * @param string $name
+   *   Name of the setting.
+   *
+   * @return mixed
+   *   Value of the setting.
+   *
+   * @throws Exception
+   */
   public function setting(string $name) {
     $var = 'consolidator_workplace_' . $name;
     $return = variable_get($var);
