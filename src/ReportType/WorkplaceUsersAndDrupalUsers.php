@@ -46,6 +46,8 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
     $total_calls = $this->fromLastCall('total_calls', 1);
     $next_page = $this->fromLastCall('next-page', '');
 
+    $this->progressMessage = 'Getting workplace groups (page ' . $total_calls . ').';
+
     $path = 'community/groups';
     $call = $next_page ? $next_page : ($this->setting('graph_url') . '/' . $path);
     $data = $this->getJson(
@@ -76,6 +78,42 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
    * Step 2, get Workplace users.
    */
   public function getWorkplaceUsers() {
+    $existing_results = $this->fromLastCall('existing', []);
+    $total_calls = $this->fromLastCall('total_calls', 1);
+    $startIndex = $this->fromLastCall('startIndex', 1);
+
+    $this->progressMessage = 'Getting workplace users (page ' . $total_calls . ').';
+
+    $path = '/scim/v1/Users?startIndex=' . $startIndex;
+    $call = 'https://www.facebook.com' . $path;
+    $data = $this->getJson(
+      $call,
+      array(
+        'headers' => array(
+          'Authorization' => 'Bearer ' . $this->setting('api_key'),
+        ),
+        'method' => 'GET',
+        'data' => json_encode(NULL),
+      )
+    );
+    if (count($data['itemsPerPage']) && !empty($data['Resources']) && count($data['Resources'])) {
+      $all_results = array_merge($existing_results, $data['Resources']);
+      $this->rememberForNext('startIndex', $data['startIndex'] + $data['itemsPerPage']);
+      $this->rememberForNext('existing', $all_results);
+      $this->rememberForNext('total_calls', ++$total_calls);
+    }
+    else {
+      return [
+        'result' => $existing_results,
+        'total-calls' => $total_calls,
+      ];
+    }
+  }
+
+  /**
+   * Do not do this, get Workplace users.
+   */
+  public function getWorkplaceUsersForGroups() {
     $existing_results = $this->fromLastCall('existing', []);
     $total_calls = $this->fromLastCall('total_calls', 1);
 
@@ -133,6 +171,9 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
    */
   public function getDrupalUsers() {
     $users = entity_load('user');
+
+    $this->progressMessage = 'Getting local Drupal users.';
+
     unset($users[0]);
     unset($users[1]);
     return [
@@ -176,6 +217,17 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
     ];
   }
 
+  /**
+   * Get a required setting as a variable. Throw exception if it is not set.
+   *
+   * @param string $name
+   *   Name of the setting.
+   *
+   * @return mixed
+   *   Value of the setting.
+   *
+   * @throws Exception
+   */
   public function setting(string $name) {
     $var = 'consolidator_workplace_' . $name;
     $return = variable_get($var);
