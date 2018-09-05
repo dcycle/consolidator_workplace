@@ -9,7 +9,7 @@ RUN drush dl devel -y
 
 # Download consolidator
 RUN apt-get -y install git
-RUN echo 'docker cache buster 1052'
+RUN echo 'docker cache buster 1426'
 RUN cd sites/all/modules && git clone https://github.com/dcycle/consolidator
 
 EXPOSE 80

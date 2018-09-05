@@ -2,6 +2,8 @@
 
 namespace consolidator_workplace\ReportType;
 
+use consolidator\Persistence\Persistence;
+use consolidator\Persistence\SaveOnDisk;
 use consolidator\ReportType\ReportType;
 
 /**
@@ -215,6 +217,13 @@ class WorkplaceUsersAndDrupalUsers extends ReportType {
         'value' => $workplace_users['total-calls'],
       ],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function persistence() : Persistence {
+    return new SaveOnDisk($this->name());
   }
 
   /**
